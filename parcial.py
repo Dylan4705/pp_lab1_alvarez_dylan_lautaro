@@ -490,9 +490,15 @@ def ordenar_por_posicion_en_cancha (lista:list) -> list:
 # Rebotes 
 # Asistencias 
 # Robos
-def calcular_posicion_rankin(path:str,lista:list) -> None:
+def calcular_posicion_en_tabla_csv(path:str,lista:list) -> None:
         """
-        
+        Calcula la posicion de todos los jugadores y te los muestra en una tabla con 4 estadisticas
+
+        Arg:
+                pah(str):Recibe el camino que el archivo va a recibir para crearse
+                lista(list):Lista de jugadores
+        Returns: 
+                None
         """
 
         if(lista):
@@ -674,7 +680,7 @@ def aplicacion(lista:list[dict])->None:
                                 print("Porfavor ingrese un numero")
 
                 elif opcion == "23": 
-                        calcular_posicion_rankin(PATH,lista_jugadores)
+                        calcular_posicion_en_tabla_csv(PATH,lista_jugadores)
 
                 elif opcion == "-1":
                         print("Porfavor ingrese un numero del 0-7")
