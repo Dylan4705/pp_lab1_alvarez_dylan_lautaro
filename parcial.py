@@ -10,6 +10,11 @@ with open(ruta_jugadores_json,'r',encoding='utf-8') as data:
     datos =json.load(data)
     lista_jugadores = datos['jugadores']
 
+#-----------CARGA DE PATH----------------
+if __name__ == '__main__':
+
+    PATH = 'C:/Users/alvar/OneDrive/Documentos/Programacion_P/PARCIALES/data_csv_parcial_1.csv'
+
 
 #-----------MENU---------------
 def menu():
@@ -34,6 +39,7 @@ def menu():
         print("18.Permitir al usuario ingresar un valor y mostrar los jugadores que hayan tenido un porcentaje de tiros triples superior a ese valor.")
         print("19.Calcular y mostrar el jugador con la mayor cantidad de temporadas jugadas")
         print("20.Ingresar un valor y mostrar los jugadores , ordenados por posición en la cancha, que hayan tenido un porcentaje de tiros de campo superior a ese valor.")
+        print("23.Bonus")
 
         
 
@@ -169,9 +175,6 @@ def crear_csv_2(path: str, lista: list[dict],indice:int) -> None:
     else:
         print("La lista está vacía.")
 
-if __name__ == '__main__':
-
-    PATH = 'C:/Users/alvar/OneDrive/Documentos/Programacion_P/PARCIALES/data_csv_2.csv'
 
     
 
@@ -202,7 +205,7 @@ def mostrar_jugador_por_nombre(lista:list,nombre:str):
 #----------------------------------------------------
 #5
 
-def calcular_mayor_equipo(lista_original:list,indice_a_buscar:str) -> list:
+def ordenar_lista_dato_o_estadistica(lista_original:list,indice_a_buscar:str,dato_estadisticas:str) -> list:
         """
         Ordena de manera mayor a menor los jugadores de la lista recibiendo un dato como inicio
 
@@ -218,14 +221,22 @@ def calcular_mayor_equipo(lista_original:list,indice_a_buscar:str) -> list:
         if (len(lista)<=1):
                 return lista
         else:
-                for elemento in lista[1:]:
-                        if (elemento[indice_a_buscar] > lista[0][indice_a_buscar]):
-                                lista_derecha.append(elemento)
-                        else:
-                                lista_izquierda.append(elemento)
+                if(indice_a_buscar!="estadisticas"):
+                        for elemento in lista[1:]:
+                                if (elemento[indice_a_buscar] < lista[0][indice_a_buscar]):
+                                        lista_derecha.append(elemento)
+                                else:
+                                        lista_izquierda.append(elemento)
+                else:
+                        for elemento in lista[1:]:
+                                if (elemento["estadisticas"][dato_estadisticas] < lista[0]["estadisticas"][dato_estadisticas]):
+                                        lista_derecha.append(elemento)
+                                else:
+                                        lista_izquierda.append(elemento) 
 
-        lista_izquierda = calcular_mayor_equipo(lista_izquierda,indice_a_buscar)
-        lista_derecha = calcular_mayor_equipo(lista_derecha,indice_a_buscar)
+
+        lista_izquierda = ordenar_lista_dato_o_estadistica(lista_izquierda,indice_a_buscar,dato_estadisticas)
+        lista_derecha = ordenar_lista_dato_o_estadistica(lista_derecha,indice_a_buscar,dato_estadisticas)
         lista_izquierda.append(lista[0])
         lista_izquierda.extend(lista_derecha)
 
@@ -473,6 +484,56 @@ def ordenar_por_posicion_en_cancha (lista:list) -> list:
                 
 
 #----------------------------------------------------
+#23
+#Calcular de cada jugador cuál es su posición en cada uno de los siguientes ranking
+# Puntos 
+# Rebotes 
+# Asistencias 
+# Robos
+def calcular_posicion_rankin(path:str,lista:list) -> None:
+        """
+        
+        """
+
+        if(lista):
+                jugadores_auxiliar = lista[:]
+
+                lista_auxiliar_puntos = ordenar_lista_dato_o_estadistica(jugadores_auxiliar,"estadisticas","puntos_totales")
+                lista_auxiliar_rebotes = ordenar_lista_dato_o_estadistica(jugadores_auxiliar,"estadisticas","rebotes_totales")
+                lista_auxiliar_asistencias = ordenar_lista_dato_o_estadistica(jugadores_auxiliar,"estadisticas","asistencias_totales")
+                lista_auxiliar_robos = ordenar_lista_dato_o_estadistica(jugadores_auxiliar,"estadisticas","robos_totales")
+
+                jugadores_datos = ["Jugador,Puntos,Rebotes,Asistencias,Robos"]
+                for jugador in lista:
+
+                        dato_jugador = []
+
+                        indice_puntos = (lista_auxiliar_puntos.index(jugador))+1
+                        indice_rebotes = (lista_auxiliar_rebotes.index(jugador))+1
+                        indice_asistencias = (lista_auxiliar_asistencias.index(jugador))+1
+                        indice_robos = (lista_auxiliar_robos.index(jugador))+1
+                        
+                        dato_jugador.append(jugador["nombre"])
+                        dato_jugador.append(str(indice_puntos))
+                        dato_jugador.append(str(indice_rebotes))
+                        dato_jugador.append(str(indice_asistencias))
+                        dato_jugador.append(str(indice_robos))
+
+                        dato_jugador= ",".join(dato_jugador)
+                        jugadores_datos.append(dato_jugador)
+                
+                datos_para_csv = "\n".join(jugadores_datos)
+
+                with open(path, "w") as archivo:
+                        archivo.writelines(datos_para_csv)
+        else:
+                print("La lista esta vacia")
+
+
+
+
+
+
 
 def aplicacion(lista:list[dict])->None:
 
@@ -481,7 +542,7 @@ def aplicacion(lista:list[dict])->None:
                 
                 menu()
                 opcion_elegida = input("\nIngrese la opción deseada: ")
-                opcion = validar_numeros(opcion_elegida, r'^[1-9]$|^1[0-9]$|^20$|^21$')
+                opcion = validar_numeros(opcion_elegida, r'^[1-9]$|^1[0-9]$|^20$|^23$')
         
 
 
@@ -495,7 +556,7 @@ def aplicacion(lista:list[dict])->None:
                         indice_jugador = validar_numeros(indice_jugador,r'^[0-9]+$') 
 
                         if(indice_jugador== "-1"):
-                                print("Porfavor ingresar un numero")
+                                print("Porfavor ingresar un numero: ")
                         else:
                                 indice_jugador = int(indice_jugador)
                                 if(indice_jugador<=cantidad_jugadores-1 and indice_jugador>=0):
@@ -521,7 +582,7 @@ def aplicacion(lista:list[dict])->None:
 
                         promedio = calcular_promedio(lista_jugadores,'promedio_puntos_por_partido')
 
-                        lista_jugadores_ordenada = calcular_mayor_equipo(lista_jugadores,"nombre")
+                        lista_jugadores_ordenada = ordenar_lista_dato_o_estadistica(lista_jugadores,"nombre","nada")
 
                         print("Promedio del equipo: {0}".format(promedio))
 
@@ -612,12 +673,8 @@ def aplicacion(lista:list[dict])->None:
                         else:
                                 print("Porfavor ingrese un numero")
 
-                elif opcion == "21": 
-                        pass
-                elif opcion == "22": 
-                        pass
                 elif opcion == "23": 
-                        pass
+                        calcular_posicion_rankin(PATH,lista_jugadores)
 
                 elif opcion == "-1":
                         print("Porfavor ingrese un numero del 0-7")
